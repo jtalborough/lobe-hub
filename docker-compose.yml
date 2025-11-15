@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  lobe-chat:
-    image: lobehub/lobe-chat-database:latest
+  lobe-hub:
+    image: lobehub/lobehub:latest
     container_name: lobe-chat
     restart: always
     depends_on:
@@ -49,7 +49,7 @@ services:
 
   postgres-db:
     image: pgvector/pgvector:pg16
-    container_name: postgres-db-lobechat
+    container_name: postgres-db-lobehub
     restart: always
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -58,13 +58,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  cloudflared-lobechat:
+  cloudflared-lobehub:
     image: cloudflare/cloudflared:latest
-    container_name: cloudflared-tunnel-lobechat
+    container_name: cloudflared-tunnel-lobehub
     restart: always
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
-      - lobe-chat
+      - lobe-hub
 
 volumes:
   postgres_data:
