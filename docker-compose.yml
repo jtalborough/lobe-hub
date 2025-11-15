@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  lobe-chat:
+    image: lobehub/lobe-chat-database:latest
+    container_name: lobe-chat
+    restart: always
+    depends_on:
+      - postgres-db
+    environment:
+      # OpenAI API Key
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DEBUG=lobe-oidc:*
+      # Database Connection
+      # The DATABASE_URL must use the service name 'postgres-db' as the host.
+      - DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD}@postgres-db:5432/postgres
+      - KEY_VAULTS_SECRET=${KEY_VAULTS_SECRET}
+
+      # NextAuth Configuration for SSO
+      - NEXT_AUTH_SECRET=${NEXT_AUTH_SECRET}
+      - NEXTAUTH_URL=https://lobe-chat.designbuildautomate.io/api/auth
+      - APP_URL=https://lobe-chat.designbuildautomate.io
+      # Add your chosen SSO provider(s), e.g., 'github' or 'google,github'
+      - NEXT_AUTH_SSO_PROVIDERS=${NEXT_AUTH_SSO_PROVIDERS}
+      # --- Auth0 SSO --- 
+      - AUTH_AUTH0_ID=${AUTH_AUTH0_ID}
+      - AUTH_AUTH0_SECRET=${AUTH_AUTH0_SECRET}
+      - AUTH_AUTH0_ISSUER=${AUTH_AUTH0_ISSUER}
+
+
+      # --- OIDC for Desktop App Sync ---
+      - ENABLE_OIDC=1
+      - OIDC_JWKS_KEY=${OIDC_JWKS_KEY}
+
+      # --- Access Control ---
+      # Set to 1 to require authentication for all users, disabling guest access.
+      - ENABLE_AUTH_PROTECTION=1
+      # Provide a comma-separated list of codes. New users will be prompted for a 
+      # code after SSO login to gain access.
+      - ACCESS_CODE=${ACCESS_CODE}
+
+      # S3-Compatible Object Storage (Cloudflare R2)
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_PUBLIC_DOMAIN=${S3_PUBLIC_DOMAIN}
+      - S3_REGION=auto # Required for R2
+
+  postgres-db:
+    image: pgvector/pgvector:pg16
+    container_name: postgres-db-lobechat
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  cloudflared-lobechat:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-tunnel-lobechat
+    restart: always
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - lobe-chat
+
+volumes:
+  postgres_data:
+ 
