@@ -3,7 +3,7 @@ version: '3.8'
 services:
   lobe-hub:
     image: lobehub/lobehub:latest
-    container_name: lobe-chat
+    container_name: lobe-hub
     restart: always
     depends_on:
       - postgres-db
