@@ -18,8 +18,8 @@ services:
 
       # NextAuth Configuration for SSO
       - NEXT_AUTH_SECRET=${NEXT_AUTH_SECRET}
-      - NEXTAUTH_URL=https://lobe-chat.designbuildautomate.io/api/auth
-      - APP_URL=https://lobe-chat.designbuildautomate.io
+      - NEXTAUTH_URL=https://lobehub.designbuildautomate.io/api/auth
+      - APP_URL=https://lobehub.designbuildautomate.io
       # Add your chosen SSO provider(s), e.g., 'github' or 'google,github'
       - NEXT_AUTH_SSO_PROVIDERS=${NEXT_AUTH_SSO_PROVIDERS}
       # --- Auth0 SSO --- 
